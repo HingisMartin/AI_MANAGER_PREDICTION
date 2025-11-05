@@ -43,7 +43,6 @@ jobs:
         wget -O data/connections.csv https://raw.githubusercontent.com/HingisMartin/AI_MANAGER_PREDICTION/main/data/connections.csv
         echo "Data download placeholder"
         
-
     - name: Run PR Solution & Evaluate
       id: pr_eval
       run: |

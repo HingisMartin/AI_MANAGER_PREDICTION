@@ -10,10 +10,10 @@ import argparse
 print("--- Manager Prediction using Hybrid Scoring (Embeddings + Graph Features) ---")
 
 # --- 1. CONFIGURATION: The Weights ---
-WEIGHT_EMBEDDING_SIMILARITY = 1.0
-WEIGHT_COMMON_NEIGHBORS = 1.0
-WEIGHT_SENIORITY_GAP = 1.0
-WEIGHT_LOCATION_MATCH = 0.0
+WEIGHT_EMBEDDING_SIMILARITY = 2.0
+WEIGHT_COMMON_NEIGHBORS = 2.0
+WEIGHT_SENIORITY_GAP = 0.5
+WEIGHT_LOCATION_MATCH = 1.0
 
 # --- 2. DATA LOADING ---
 def load_data(employees_path, connections_path):
@@ -44,7 +44,7 @@ def build_graph_with_features(employees_df, connections_df,):
     # for i, row in employees_df.iterrows():
     #     embedding = model.encode(row['combined_text'])  # <-- Inefficient: no batching -- > fixed
     #     embeddings.append(embedding)
-    embeddings = model.encode(employees_df['combined_text'].tolist(),batch_size = 64, show_progress_bar = True)
+    embeddings = model.encode(employees_df['combined_text'].tolist(),batch_size = 100, show_progress_bar = True)
     embedding_dict = {row['employee_id']: emb for row, emb in zip(employees_df.to_dict('records'), embeddings)}
 
     def get_seniority(title):
@@ -70,8 +70,8 @@ def build_graph_with_features(employees_df, connections_df,):
 
     # cat 
     # <-- Inefficient: Adding same node twice unnecessarily --> fixed it --> check again
-    for node in employees_df['employee_id']: 
-        G.add_node(node)
+    # for node in employees_df['employee_id']: 
+    #     G.add_node(node)
 
     nx.set_node_attributes(G, node_attributes)
     G.add_edges_from(connections_df.values)
