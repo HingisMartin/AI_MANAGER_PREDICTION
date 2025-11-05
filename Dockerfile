@@ -1,6 +1,6 @@
 #-----------------BUILD STAGE----------------------------
 # TODO: Use an official Python runtime as a parent image
-FROM Python:3.11-slim AS builder
+FROM python:3.11-slim AS builder
 # TODO: Set the working directory in the container
 WORKDIR /app
 # TODO: Copy the dependencies file to the working directory
@@ -9,7 +9,7 @@ COPY requirements.txt .
 #run pip install --no-cache-dir -r ./requirements.txt
 RUN pip install -r ./requirements.txt --target /install
 #----------- FINAL RUNTIME ENVIRONMENT-----------------
-FROM Python:3.11-slim
+FROM python:3.11-slim
 WORKDIR /app
 #copy installed dependencies , binaries from builder
 COPY --from=builder /install /usr/local/lib/python3.11/site-packages

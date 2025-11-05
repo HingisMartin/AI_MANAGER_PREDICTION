@@ -19,9 +19,18 @@ jobs:
     - name: Docker Auth
       # TODO: Add steps to authenticate with a Docker registry (e.g., GitHub Container Registry)
       # This may involve using actions like docker/login-action
-      run: echo "TODO Docker authentication"
-        
+      uses: docker/login-action@v2
+      with: 
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build and push Docker image
       # TODO: Add steps to build the Docker image and push it to the registry
       # This will likely involve using the docker/build-push-action
-      run: echo "TODO Build and push Docker image"
+      uses: docker/build-push-action@v4
+      with: 
+        context: .
+        push: true
+        tags: ghcr.io/${{ github.repository_owner }}/hingismartin/ai-manager-prediction:latest
+      
