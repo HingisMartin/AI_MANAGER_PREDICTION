@@ -1,0 +1,27 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Docker Auth
+      # TODO: Add steps to authenticate with a Docker registry (e.g., GitHub Container Registry)
+      # This may involve using actions like docker/login-action
+      run: echo "TODO Docker authentication"
+        
+    - name: Build and push Docker image
+      # TODO: Add steps to build the Docker image and push it to the registry
+      # This will likely involve using the docker/build-push-action
+      run: echo "TODO Build and push Docker image"

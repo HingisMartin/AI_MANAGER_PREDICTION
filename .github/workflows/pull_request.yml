@@ -1,0 +1,133 @@
+# Workflow for comparing solutions on pull requests
+name: Compare Solutions on Pull Request
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  compare-solutions:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository }}
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+
+    - name: Install Python Dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Download Data
+      run: |
+        mkdir -p data 
+        # TODO: Add command to download data from a public URL
+        # For example:
+        # wget -P data/ https://example.com/connections.csv
+        # wget -P data/ https://example.com/employees.csv
+        wget -O data/employees.csv https://raw.githubusercontent.com/HingisMartin/AI_MANAGER_PREDICTION/main/data/employees.csv
+        wget -O data/connections.csv https://raw.githubusercontent.com/HingisMartin/AI_MANAGER_PREDICTION/main/data/connections.csv
+        echo "Data download placeholder"
+        
+
+    - name: Run PR Solution & Evaluate
+      id: pr_eval
+      run: |
+        
+        # TODO: Add commands to run the solution script from the PR and evaluate its performance
+        # This should include:
+        # 1. Running the solution script (e.g., python scripts/solution.py)
+        # 2. Running the evaluation script (e.g., python dependencies/evaluate.py ...)
+        # 3. Parsing the accuracy from the evaluation output and setting it as an environment variable
+        echo "TODO: Run PR solution and evaluate"
+        echo "Running PR solution"
+        python scripts/solution.py
+        echo "Evaluating PR solution"
+        python dependencies/evaluate.py scripts/submission.csv data/ground_truth_managers.csv > eval_output.txt
+        frep='(?<=Manager Prediction Accuracy: )\d+(\.\d+)?'
+        PR_ACCURACY_=$(grep -oP "$frep" eval_output.txt || echo "0")
+        echo "PR ACCURACY : $PR_ACCURACY_%"
+        echo "PR_ACCURACY=$PR_ACCURACY_" >> $GITHUB_OUTPUT
+        #echo PR_accuracy
+
+    - name: Checkout main branch
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        path: main-branch-solution
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run Main Branch Solution & Evaluate
+      id: main_eval
+      run: |
+        # TODO: Add commands to run the solution script from the main branch and evaluate its performance
+        # This is similar to the "Run PR Solution & Evaluate" step, but for the main branch code
+        echo "TODO: Run main branch solution and evaluate"
+        cd main-branch-solution
+        python scripts/solution.py
+        echo "Evaluating MAIN solution"
+        python dependencies/evaluate.py scripts/submission.csv data/ground_truth_managers.csv > eval_output.txt
+        frep='(?<=Manager Prediction Accuracy: )\d+(\.\d+)?'
+        MAIN_ACCURACY_=$(grep -oP "$frep" eval_output.txt || echo "0")
+        echo "MAIN ACCURACY : $MAIN_ACCURACY_%"
+        echo "MAIN_ACCURACY=$MAIN_ACCURACY_" >> $GITHUB_OUTPUT
+        echo MAIN_ACCURACY
+
+
+    - name: Compare Performance
+      id: comparison
+      run: |
+        # TODO: Compare the accuracies of the PR and main branch solutions
+        # Set an environment variable (e.g., IS_BETTER) to "true" or "false" based on the comparison
+        echo "TODO: Compare performance"
+        set -e
+        PR=${{ steps.pr_eval.outputs.PR_ACCURACY }}
+        MAIN=${{ steps.main_eval.outputs.MAIN_ACCURACY}}
+        echo " Comparing PR ($PR%) VS MAIN ($MAIN%) "
+        if (( $(echo "$PR > $MAIN" | bc -l) )); then 
+          echo "IS_BETTER=true" >> $GITHUB_OUTPUT
+        else 
+          echo "IS_BETTER=false" >> $GITHUB_OUTPUT
+        fi
+        echo IS_BETTER
+
+    - name: Post PR Comment
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          // TODO: Construct a comment to post on the PR with the performance comparison results
+          // This script should use the environment variables set in the previous steps
+          // (e.g., PR_ACCURACY, MAIN_ACCURACY, IS_BETTER)
+          console.log("TODO: Post PR comment");
+          const pr_num = context.payload.pull_request.number;
+          const pr_acc = "${{ steps.pr_eval.outputs.PR_ACCURACY }}" || "NA";
+          const main_acc = "${{ steps.main_eval.outputs.MAIN_ACCURACY }}" || "NA";
+          const is_better = "${{ steps.comparison.outputs.IS_BETTER }}" ||"NA";
+          const body = ` 
+          ------------Evaluation Report -----------------
+          |version| Manager Prediction Accuracy|
+          |------------------------------------|
+          | PR    | ${pr_acc}%                 |
+          | Main  | ${main_acc}%               |
+          Results : ${is_better ? "IMPROVEMENT" : "NO IMPROVEMENT"}
+          `;
+          await github.rest.issues.createComment({
+          issue_number : pr_num,
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          body});

@@ -1,0 +1,12 @@
+Loading submission file: 'scripts/submission.csv'
+Loading ground truth file: 'data/ground_truth_managers.csv'
+
+Comparing submission against ground truth...
+
+--- Evaluation Results ---
+Correctly Predicted Managers: 75
+Total Employees Evaluated (non-CEO): 155
+Total Employees Evaluated in Provided Ground Truth File: 155
+--------------------------------------
+Manager Prediction Accuracy: 48.39%
+--------------------------------------
