@@ -24,7 +24,6 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-      run: echo "TODO Docker authentication"
 
     - name: Build and push Docker image
       # TODO: Add steps to build the Docker image and push it to the registry
@@ -34,4 +33,4 @@ jobs:
         context: .
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/hingismartin/ai-manager-prediction:latest
-      run: echo "TODO Build and push Docker image"
+      
