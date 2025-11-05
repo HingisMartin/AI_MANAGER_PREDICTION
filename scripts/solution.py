@@ -12,7 +12,7 @@ print("--- Manager Prediction using Hybrid Scoring (Embeddings + Graph Features)
 # --- 1. CONFIGURATION: The Weights ---
 WEIGHT_EMBEDDING_SIMILARITY = 2.0
 WEIGHT_COMMON_NEIGHBORS = 2.0
-WEIGHT_SENIORITY_GAP = 1.0
+WEIGHT_SENIORITY_GAP = 2.0
 WEIGHT_LOCATION_MATCH = 1.0
 
 # --- 2. DATA LOADING ---
