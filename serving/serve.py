@@ -5,6 +5,10 @@ import os
 import tempfile
 import atexit
 import pandas as pd 
+import sys
+# Add the root directory to Python path
+sys.path.insert(0, '/app')
+
 
 from sentence_transformers import SentenceTransformer
 

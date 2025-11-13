@@ -30,7 +30,7 @@ def load_data(employees_path, connections_path):
 
 # --- 3. FEATURE ENGINEERING & GRAPH CONSTRUCTION ---
 #def build_graph_with_features(employees_df, connections_df,model_):
-def build_graph_with_features(employees_df, connections_df,):
+def build_graph_with_features(employees_df, connections_df):
     """Builds the graph and enriches it with all necessary node attributes."""
     print("Step 2: Engineering features and building graph...")
     
@@ -68,14 +68,13 @@ def build_graph_with_features(employees_df, connections_df,):
     
     node_attributes = employees_df.set_index('employee_id').to_dict('index')
 
-    # cat 
     # <-- Inefficient: Adding same node twice unnecessarily --> fixed it --> check again
-    for node in employees_df['employee_id']: 
-        G.add_node(node)
+    #for node in employees_df['employee_id']: 
+    #    G.add_node(node)
 
     nx.set_node_attributes(G, node_attributes)
-    G.add_edges_from(connections_df.values)
-
+    #nx.set_node_attributes(G, embedding_dict, "embedding")
+    G.add_edges_from(connections_df.values) 
     print(f"   - Graph built with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
     return G
 
@@ -91,6 +90,7 @@ def score_potential_managers(employee_id, G):
     neighbors = list(G.neighbors(employee_id))
     if not neighbors:
         return []
+    
     # created for optimizing employee embedding
     if employee_embedding is not None:
         reshaped_emp_emb = np.array(employee_embedding).reshape(1,-1)
@@ -153,7 +153,7 @@ def predict_managers_globally(G):
 
         hierarchy_graph.add_edge(emp_id, mgr_id)
 
-        if nx.is_directed_acyclic_graph(hierarchy_graph):
+        if nx.is_directed_acyclic_graph(hierarchy_graph): 
             final_predictions[emp_id] = mgr_id
             assigned_employees.add(emp_id)
         else:
